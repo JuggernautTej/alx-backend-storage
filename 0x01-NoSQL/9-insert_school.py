@@ -9,5 +9,5 @@ def insert_school(mongo_collection, **kwargs):
         mongo_collection: a pymongo collection object.
     Returns:
         List: A list of all documents in the collection."""
-    result = mongo_collection.insert_one(**kwargs)
+    result = mongo_collection.insert_one(kwargs)
     return result.inserted_ids
