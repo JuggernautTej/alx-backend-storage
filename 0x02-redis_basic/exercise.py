@@ -5,7 +5,9 @@ that takes a data argument and returns aa string"""
 
 import redis
 import uuid
-from typing import Union
+from typing import Callable, cast, Optional, TypeVar, Union
+
+T = TypeVar('T', str, bytes, int, float)
 
 
 class Cache:
@@ -28,3 +30,38 @@ class Cache:
         key = str(uuid.uuid4())
         self._redis.set(key, data)
         return key
+
+    def get(self, key: str,
+            fn: Optional[Callable[[bytes], T]] = None) -> Optional[T]:
+        """A method that takes a key string argument and an optional Callable
+        argument named fn.
+        Args:
+            key: a string.
+            fn: The optional callable function.
+        Return:
+            bytes."""
+        data = self._redis.get(key)
+        if data is None:
+            return None
+        # assert isinstance(data, bytes)
+        if fn is not None:
+            return fn(data)
+        return data
+
+    def get_str(self, key: str) -> Optional[str]:
+        """A method that automatically parametrize Cache.get and returns
+        a string.
+        Args:
+            key: a string.
+        Return:
+            a string."""
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
+
+    def get_int(self, key: str) -> Optional[int]:
+        """A method that automatically parametrize Cache.get and returns
+        a integer.
+        Args:
+            key: a string.
+        Return:
+            an integer."""
+        return self.get(key, fn=int)
