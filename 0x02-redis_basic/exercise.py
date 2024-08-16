@@ -5,9 +5,26 @@ that takes a data argument and returns aa string"""
 
 import redis
 import uuid
+from functools import wraps
 from typing import Callable, cast, Optional, TypeVar, Union
 
 T = TypeVar('T', str, bytes, int, float)
+
+
+def count_calls(method: Callable) -> Callable:
+    """A decorator that counts the number of times a method is called."""
+    @wraps(method)
+    def wrapper(self, *args, **kwargs):
+        """A wrapper function that increments the call count."""
+        # Key generation happens using the qualified name of the method
+        key = f"{method.__qualname__}:calls"
+
+        # Now the counter for the key is incremented
+        self._redis.incr(key)
+
+        return method(self, *args, **kwargs)
+
+    return wrapper
 
 
 class Cache:
