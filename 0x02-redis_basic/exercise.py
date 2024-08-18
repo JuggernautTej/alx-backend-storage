@@ -22,6 +22,9 @@ def count_calls(method: Callable) -> Callable:
         # Now the counter for the key is incremented
         self._redis.incr(key)
 
+        # # Store the call count as a string in Redis for easy retrieval
+        # self._redis.set(key, call_count)
+
         return method(self, *args, **kwargs)
 
     return wrapper
